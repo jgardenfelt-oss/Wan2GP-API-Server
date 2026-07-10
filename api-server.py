@@ -600,7 +600,7 @@ def run_direct(body: GenerateRequest):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="WanGP API Server")
+    parser = argparse.ArgumentParser(description="Wan2GP API Server")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Bind host")
     parser.add_argument("--port", type=int, default=8001, help="Bind port")
     parser.add_argument("--config", type=str, default="", help="Path to config directory")
