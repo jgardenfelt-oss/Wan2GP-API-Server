@@ -609,7 +609,7 @@ if __name__ == "__main__":
         alt_config = Path(args.config) / "wgp_config.json"
         if alt_config.exists():
             CONFIG_PATH = alt_config
-    print(f"WanGP API Server - Config: {CONFIG_PATH}")
+    print(f"Wan2GP API Server - Config: {CONFIG_PATH}")
     print(f"Starting on http://{args.host}:{args.port}")
     print(f"Docs: http://{args.host}:{args.port}/docs")
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")    
