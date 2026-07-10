@@ -1,5 +1,5 @@
 @echo off
-title WanGP API Server
+title Wan2GP API Server
 cd /d "%~dp0"
 
 :: ---------------------------------------------------------------------------
