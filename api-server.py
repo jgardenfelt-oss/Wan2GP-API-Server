@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import secrets
 import sys
 import threading
 import time
@@ -17,6 +18,11 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 import uvicorn
 
+_AUTH_USERNAME: str = ""
+_AUTH_PASSWORD: str = ""
+_REQUIRE_AUTH: bool = False
+
+
 CONFIG_PATH = PROJECT_ROOT / "wgp_config.json"
 
 def load_config() -> dict[str, Any]:
@@ -24,7 +30,7 @@ def load_config() -> dict[str, Any]:
         return {}
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)    
- def save_config(cfg: dict[str, Any]) -> None:
+def save_config(cfg: dict[str, Any]) -> None:
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=4)
 class TaskRecord:
@@ -42,10 +48,12 @@ class TaskRecord:
         self.job: Any = None
         self.released: bool = False
         self.log_path: str = ""
-    _tasks: dict[str, TaskRecord] = {}
-    _session: Any = None
-    _session_lock = threading.Lock()
-    def _get_session():
+
+_tasks: dict[str, TaskRecord] = {}
+_session: Any = None
+_session_lock = threading.Lock()
+
+def _get_session():
     global _session
     with _session_lock:
         if _session is None:
@@ -54,7 +62,7 @@ class TaskRecord:
             _session.ensure_ready()
         return _session
 
-    def _get_default_model_type() -> str:
+def _get_default_model_type() -> str:
     try:
         config_path = PROJECT_ROOT / "wgp_config.json"
         with open(config_path, "r", encoding="utf-8") as f:
@@ -416,12 +424,43 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def auth_middleware(request, call_next):
+    if _REQUIRE_AUTH:
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Basic "):
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Authentication required"},
+                headers={"WWW-Authenticate": "Basic"},
+            )
+        try:
+            import base64
+            encoded = auth_header[len("Basic "):]
+            decoded = base64.b64decode(encoded).decode("utf-8")
+            username, password = decoded.split(":", 1)
+            if not (secrets.compare_digest(username, _AUTH_USERNAME) and secrets.compare_digest(password, _AUTH_PASSWORD)):
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Invalid username or password"},
+                    headers={"WWW-Authenticate": "Basic"},
+                )
+        except Exception:
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Invalid authentication header"},
+                headers={"WWW-Authenticate": "Basic"},
+            )
+    return await call_next(request)
+
 @app.get("/")
 def root():
     return {
         "name": "WanGP API",
         "version": "1.0.0",
         "status": "running",
+        "authentication": "required" if _REQUIRE_AUTH else "disabled",
         "endpoints": {
             "create_task": "POST /create_task",
             "create_task_raw": "POST /create_task_raw (raw tags from external sites)",
@@ -435,7 +474,6 @@ def root():
             "config": "GET /config",
         },
     }
-
 
 @app.get("/health")
 def health():
@@ -599,17 +637,92 @@ def run_direct(body: GenerateRequest):
 
 if __name__ == "__main__":
     import argparse
+    import string
 
-    parser = argparse.ArgumentParser(description="Wan2GP API Server")
+    AUTH_CRED_PATH = PROJECT_ROOT / ".api_auth.json"
+
+    def _load_saved_auth() -> tuple[str, str]:
+        if AUTH_CRED_PATH.exists():
+            try:
+                with open(AUTH_CRED_PATH, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                return data.get("username", ""), data.get("password", "")
+            except Exception:
+                pass
+        return "", ""
+
+    def _save_auth(username: str, password: str) -> None:
+        with open(AUTH_CRED_PATH, "w", encoding="utf-8") as f:
+            json.dump({"username": username, "password": password}, f, indent=2)
+
+    def _generate_credentials() -> tuple[str, str]:
+        username = "admin"
+        alphabet = string.ascii_letters + string.digits
+        password = "".join(secrets.choice(alphabet) for _ in range(16))
+        return username, password
+
+    parser = argparse.ArgumentParser(description="WanGP API Server")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Bind host")
     parser.add_argument("--port", type=int, default=8001, help="Bind port")
     parser.add_argument("--config", type=str, default="", help="Path to config directory")
+    parser.add_argument("--username", type=str, default="", help="Username for API authentication")
+    parser.add_argument("--password", type=str, default="", help="Password for API authentication")
+    parser.add_argument("--require-auth", action="store_true", default=False, help="Force authentication even for local connections")
+    parser.add_argument("--reset-auth", action="store_true", default=False, help="Reset saved authentication credentials")
     args = parser.parse_args()
     if args.config:
         alt_config = Path(args.config) / "wgp_config.json"
         if alt_config.exists():
             CONFIG_PATH = alt_config
-    print(f"Wan2GP API Server - Config: {CONFIG_PATH}")
+
+    if args.reset_auth:
+        if AUTH_CRED_PATH.exists():
+            AUTH_CRED_PATH.unlink()
+            print("Saved authentication credentials have been deleted.")
+
+    _is_external = args.host not in ("127.0.0.1", "localhost", "::1", "0.0.0.0")
+
+    if _is_external or args.require_auth:
+        saved_user, saved_pass = _load_saved_auth()
+
+        if args.username and args.password:
+            _AUTH_USERNAME = args.username
+            _AUTH_PASSWORD = args.password
+            _save_auth(_AUTH_USERNAME, _AUTH_PASSWORD)
+            _REQUIRE_AUTH = True
+            print(f"Authentication enabled with provided credentials for host: {args.host}")
+        elif saved_user and saved_pass:
+            _AUTH_USERNAME = saved_user
+            _AUTH_PASSWORD = saved_pass
+            _REQUIRE_AUTH = True
+            print(f"Authentication enabled with saved credentials for host: {args.host}")
+        else:
+            _AUTH_USERNAME, _AUTH_PASSWORD = _generate_credentials()
+            _save_auth(_AUTH_USERNAME, _AUTH_PASSWORD)
+            _REQUIRE_AUTH = True
+            print(f"Authentication enabled with auto-generated credentials for host: {args.host}")
+
+        print()
+        print("=" * 50)
+        print("  API CREDENTIALS (saved to .api_auth.json)")
+        print("=" * 50)
+        print(f"  Username: {_AUTH_USERNAME}")
+        print(f"  Password: {_AUTH_PASSWORD}")
+        print("=" * 50)
+        print()
+
+    elif args.username and args.password:
+        _AUTH_USERNAME = args.username
+        _AUTH_PASSWORD = args.password
+        _REQUIRE_AUTH = True
+        _save_auth(_AUTH_USERNAME, _AUTH_PASSWORD)
+        print("Authentication enabled (explicit --username/--password provided)")
+
+    print(f"WanGP API Server - Config: {CONFIG_PATH}")
     print(f"Starting on http://{args.host}:{args.port}")
+    if _REQUIRE_AUTH:
+        print("Authentication: REQUIRED (HTTP Basic Auth)")
+    else:
+        print("Authentication: DISABLED (local connection)")
     print(f"Docs: http://{args.host}:{args.port}/docs")
-    uvicorn.run(app, host=args.host, port=args.port, log_level="info")    
+    uvicorn.run(app, host=args.host, port=args.port, log_level="info")
