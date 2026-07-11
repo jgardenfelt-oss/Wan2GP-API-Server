@@ -14,3 +14,7 @@ Endpoints for the api server:
   GET  /list_tasks         -> list all tasks</p>
   POST /generate           -> alias for create_task</p>
   POST /run                -> blocking: submit and wait for result</p>
+  </p>
+  </p>
+  The Wan2GP Website is make in php so you can make music with this api server </p>
+  
