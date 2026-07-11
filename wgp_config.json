@@ -23,7 +23,7 @@
     "image_profile": 4,
     "audio_profile": 3.5,
     "preload_model_policy": [],
-    "UI_theme": "default",
+    "UI_theme": "gradio",
     "checkpoints_paths": [
         "ckpts",
         "."
