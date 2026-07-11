@@ -5,7 +5,7 @@ cd /d "%~dp0"
 :: ---------------------------------------------------------------------------
 :: Configuration (override with environment variables)
 :: ---------------------------------------------------------------------------
-if not defined API_HOST set "API_HOST=Your IP_ADDRESS"
+if not defined API_HOST set "API_HOST=127.0.0.1"
 if not defined API_PORT set "API_PORT=8001"
 if not defined CONDA_ENV set "CONDA_ENV=wan2gp"
 
