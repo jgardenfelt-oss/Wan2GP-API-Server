@@ -16,7 +16,7 @@ Endpoints for the api server:
   POST /run                -> blocking: submit and wait for result</p>
   </p>
   and if you wish to use it with extern ip you need to use the </p>
-  username and password the server make for you
+  username and password the server make for you</p>
   </p>
   </p>
   The Wan2GP Website is make in php so you can make music with this api server </p>
