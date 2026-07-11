@@ -4,14 +4,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-HOST="${API_HOST:-You IP_ADDRESS}"
+HOST="${API_HOST:-127.0.0.1}"
 PORT="${API_PORT:-8001}"
 CONDA_ENV="${CONDA_ENV:-wan2gp}"
 USERNAME="${API_USERNAME:-}"
 PASSWORD="${API_PASSWORD:-}"
 
 echo "========================================"
-echo "  WanGP API Server"
+echo "  Wan2GP API Server"
 echo "========================================"
 
 # Find conda
