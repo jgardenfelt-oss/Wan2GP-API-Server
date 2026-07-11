@@ -62,7 +62,7 @@ if %errorlevel% neq 0 (
 :: Display info
 :: ---------------------------------------------------------------------------
 echo ========================================
-echo   WanGP API Server
+echo   Wan2GP API Server
 echo ========================================
 echo Conda:       %CONDA_EXE%
 echo Environment: %CONDA_ENV%
