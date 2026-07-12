@@ -380,7 +380,7 @@ class GenerateRequest(BaseModel):
     video_length: int = Field(default=0, description="Number of frames for video models (0 = default)")
     height: int = Field(default=0, description="Output height (0 = default)")
     width: int = Field(default=0, description="Output width (0 = default)")
-    extra_settings: dict[str, Any] = Field(default_factory=dict, description="Any additional settings passed directly to WanGP")
+    extra_settings: dict[str, Any] = Field(default_factory=dict, description="Any additional settings passed directly to Wan2GP")
 
 
 class TaskCreatedResponse(BaseModel):
@@ -418,8 +418,8 @@ class ParseTagsResponse(BaseModel):
     sections_found: list[str]
 
 app = FastAPI(
-    title="WanGP API",
-    description="REST API for WanGP media generation.",
+    title="Wan2GP API",
+    description="REST API for Wan2GP media generation.",
     version="1.0.0",
     docs_url=None if _REQUIRE_AUTH else "/docs",
     redoc_url=None if _REQUIRE_AUTH else "/redoc",
@@ -520,9 +520,9 @@ async def security_middleware(request, call_next):
 @app.get("/")
 def root():
     if _REQUIRE_AUTH:
-        return {"name": "WanGP API", "status": "running", "authentication": "required"}
+        return {"name": "Wan2GP API", "status": "running", "authentication": "required"}
     return {
-        "name": "WanGP API",
+        "name": "Wan2GP API",
         "version": "1.0.0",
         "status": "running",
         "authentication": "disabled",
@@ -726,7 +726,7 @@ if __name__ == "__main__":
         password = "".join(secrets.choice(alphabet) for _ in range(16))
         return username, password
 
-    parser = argparse.ArgumentParser(description="WanGP API Server")
+    parser = argparse.ArgumentParser(description="Wan2GP API Server")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Bind host")
     parser.add_argument("--port", type=int, default=8001, help="Bind port")
     parser.add_argument("--config", type=str, default="", help="Path to config directory")
@@ -789,10 +789,7 @@ if __name__ == "__main__":
     elif not _REQUIRE_AUTH:
         _ALLOWED_ORIGINS = ["*"]
 
-    if _REQUIRE_AUTH:
-        app.docs_url = None
-        app.redoc_url = None
-        app.openapi_url = None
+    # Docs endpoints are protected by the security middleware, no need to disable them
 
     _origins = _ALLOWED_ORIGINS if _ALLOWED_ORIGINS else []
     app.add_middleware(
@@ -803,13 +800,13 @@ if __name__ == "__main__":
         allow_headers=["Authorization", "Content-Type"],
     )
 
-    print(f"WanGP API Server - Config: {CONFIG_PATH}")
+    print(f"Wan2GP API Server - Config: {CONFIG_PATH}")
     print(f"Starting on http://{args.host}:{args.port}")
     if _REQUIRE_AUTH:
         print("Authentication: REQUIRED (HTTP Basic Auth)")
-        print("API docs: DISABLED (security)")
+        print("API docs: ENABLED (protected by auth middleware)")
         print(f"CORS origins: {_ALLOWED_ORIGINS or 'none'}")
     else:
         print("Authentication: DISABLED (local connection)")
     print(f"Docs: http://{args.host}:{args.port}/docs")
-    uvicorn.run(app, host=args.host, port=args.port, log_level="info")    
+    uvicorn.run(app, host=args.host, port=args.port, log_level="info") 
