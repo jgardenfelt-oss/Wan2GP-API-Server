@@ -1,1 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>Wan2GP_WebUI_Launcher</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>music_note.ico</ApplicationIcon>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="music_note.ico" />
+  </ItemGroup>
+
+</Project>
