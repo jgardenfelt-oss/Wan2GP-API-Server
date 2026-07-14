@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>wan2gp.ico</ApplicationIcon>
+    <AssemblyName>Wan2GP Installer</AssemblyName>
+    <RootNamespace>Wan2GP_Installer</RootNamespace>
+    <Version>1.0.0</Version>
+    <AssemblyTitle>Wan2GP Installer</AssemblyTitle>
+    <Description>Installer for Wan2GP AI Video Generation Framework</Description>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+</Project>
