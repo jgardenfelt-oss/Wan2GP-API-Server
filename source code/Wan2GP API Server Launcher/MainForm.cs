@@ -101,6 +101,36 @@ namespace WanGP_Launcher
             txtUsername.Text = _settings.ApiUsername;
             txtPassword.Text = _settings.ApiPassword;
             txtServerDir.Text = _settings.ServerDirectory;
+            UpdateAuthUI();
+        }
+
+        private bool IsLocalhost()
+        {
+            string host = txtHost.Text.Trim().ToLowerInvariant();
+            return host == "127.0.0.1" || host == "localhost" || host == "::1" || host == "[::1]";
+        }
+
+        private void UpdateAuthUI()
+        {
+            bool isLocalhost = IsLocalhost();
+            bool authEnabled = !isLocalhost;
+
+            txtUsername.Enabled = authEnabled;
+            txtPassword.Enabled = authEnabled;
+            btnTogglePass.Enabled = authEnabled;
+            lblUsername.ForeColor = authEnabled ? Color.FromArgb(140, 140, 170) : Color.FromArgb(80, 80, 100);
+            lblPassword.ForeColor = authEnabled ? Color.FromArgb(140, 140, 170) : Color.FromArgb(80, 80, 100);
+
+            if (isLocalhost)
+            {
+                txtUsername.Text = "";
+                txtPassword.Text = "";
+            }
+        }
+
+        private void TxtHost_TextChanged(object? sender, EventArgs e)
+        {
+            UpdateAuthUI();
         }
 
         private void SaveSettingsFromUI()
@@ -173,10 +203,15 @@ namespace WanGP_Launcher
                 args.Append($" --host {_settings.ApiHost}");
                 args.Append($" --port {_settings.ApiPort}");
 
-                if (!string.IsNullOrEmpty(_settings.ApiUsername) && !string.IsNullOrEmpty(_settings.ApiPassword))
+                if (!IsLocalhost() && !string.IsNullOrEmpty(_settings.ApiUsername) && !string.IsNullOrEmpty(_settings.ApiPassword))
                 {
                     args.Append($" --username {_settings.ApiUsername} --password {_settings.ApiPassword}");
                 }
+
+                if (IsLocalhost())
+                    AppendLog("Auth skipped: host is localhost (127.0.0.1)");
+                else if (!string.IsNullOrEmpty(_settings.ApiUsername) && !string.IsNullOrEmpty(_settings.ApiPassword))
+                    AppendLog($"Auth enabled for {_settings.ApiHost}");
 
                 AppendLog($"Starting server...");
                 AppendLog($"Cmd: {pythonPath} {args}");
@@ -319,7 +354,7 @@ namespace WanGP_Launcher
             sb.Append($" --host {_settings.ApiHost}");
             sb.Append($" --port {_settings.ApiPort}");
 
-            if (!string.IsNullOrEmpty(_settings.ApiUsername) && !string.IsNullOrEmpty(_settings.ApiPassword))
+            if (!IsLocalhost() && !string.IsNullOrEmpty(_settings.ApiUsername) && !string.IsNullOrEmpty(_settings.ApiPassword))
             {
                 sb.Append($" --username {_settings.ApiUsername} --password {_settings.ApiPassword}");
             }

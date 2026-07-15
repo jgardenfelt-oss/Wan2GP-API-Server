@@ -70,6 +70,7 @@ namespace WanGP_Launcher
             txtHost.Size = new Size(200, 18);
             txtHost.TabIndex = 3;
             txtHost.Text = "127.0.0.1";
+            txtHost.TextChanged += TxtHost_TextChanged;
             // 
             // nudPort
             // 
