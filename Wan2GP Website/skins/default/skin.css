@@ -1,0 +1,95 @@
+:root {
+    --bg-main: #080808;
+    --bg-secondary: #111111;
+    --bg-tertiary: #1a1a1a;
+    --bg-card: #151515;
+    --bg-hover: #1e1e1e;
+    --accent-primary: #ec4899;
+    --accent-secondary: #f97316;
+    --text-primary: #f0f0f0;
+    --text-secondary: #8a8a8a;
+    --text-muted: #555555;
+    --border-color: rgba(255, 255, 255, 0.07);
+    --glass-bg: rgba(17, 17, 17, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar {
+    background-color: #0e0e0e !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.nav-item.active {
+    background: rgba(168, 85, 247, 0.12) !important;
+    color: #a855f7 !important;
+}
+
+.play-btn {
+    background: linear-gradient(135deg, #ec4899, #f97316) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 2px 12px rgba(236, 72, 153, 0.35);
+}
+
+.play-btn:hover {
+    box-shadow: 0 4px 20px rgba(236, 72, 153, 0.5);
+}
+
+.create-btn {
+    background: linear-gradient(135deg, #ec4899, #f97316) !important;
+    border: none !important;
+    box-shadow: 0 2px 16px rgba(236, 72, 153, 0.3);
+}
+
+.create-btn:hover {
+    box-shadow: 0 4px 24px rgba(236, 72, 153, 0.5);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #a855f7, #ec4899) !important;
+    border: none !important;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #a855f7, #ec4899) !important;
+}
+
+.song-row:hover {
+    background: rgba(168, 85, 247, 0.06) !important;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.user-profile:hover {
+    background: rgba(168, 85, 247, 0.08) !important;
+}
+
+.tag-pill:hover {
+    border-color: #a855f7 !important;
+    color: #a855f7 !important;
+}
+
+.tag-pill.selected {
+    background: rgba(168, 85, 247, 0.15) !important;
+    border-color: #a855f7 !important;
+    color: #a855f7 !important;
+}
+
+.icon-btn:hover {
+    background: rgba(168, 85, 247, 0.15) !important;
+    color: #a855f7 !important;
+}
+
+.toast.success {
+    border-color: #22c55e !important;
+}
+
+.toast.error {
+    border-color: #ef4444 !important;
+}
+
+.toast.info {
+    border-color: #a855f7 !important;
+}
