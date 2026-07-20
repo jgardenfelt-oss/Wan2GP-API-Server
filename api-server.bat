@@ -72,7 +72,7 @@ echo Port:        %API_PORT%
 :: ---------------------------------------------------------------------------
 :: Build command
 :: ---------------------------------------------------------------------------
-set "CMD="%CONDA_EXE%" run -n %CONDA_ENV% --no-capture-output python api_server.py --host %API_HOST% --port %API_PORT%"
+set "CMD="%CONDA_EXE%" run -n %CONDA_ENV% --no-capture-output python api-server.py --host %API_HOST% --port %API_PORT%"
 
 if defined API_USERNAME if defined API_PASSWORD (
     set "CMD=%CMD% --username %API_USERNAME% --password %API_PASSWORD%"
