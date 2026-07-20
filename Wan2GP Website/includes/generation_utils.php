@@ -14,7 +14,7 @@ function get_api_base_url() {
     $stmt = $pdo->query("SELECT setting_value FROM site_settings WHERE setting_key = 'api_server_url'");
     $url = $stmt->fetchColumn() ?: '';
     if (empty($url)) {
-        $url = 'https://127.0.0.1:8001';
+        $url = 'http://127.0.0.1:8001';
     }
     return rtrim($url, '/');
 }
